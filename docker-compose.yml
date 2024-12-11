@@ -1,51 +1,46 @@
+version: "3.9"
 services:
-  rabbitmq:
-    image: "rabbitmq:3-management"
-    ports:
-      - "5672:5672"      # Основной порт для AMQP протокола
-      - "15672:15672"    # Порт для веб-интерфейса управления
-    environment:
-      RABBITMQ_DEFAULT_USER: user
-      RABBITMQ_DEFAULT_PASS: password
-
   db:
-    image: postgres:13
+    image: postgres:13-alpine  # Use version 13
+    container_name: user_db
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: moviedb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: mydatabase
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  user-service:
-    build:
-      context: ./user_service
+  pgadmin:
+    image: dpage/pgadmin4:6.21
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "8001:8000"
+      - "5050:80"
     depends_on:
       - db
-      - rabbitmq
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
 
-  movie-service:
-    build:
-      context: ./movie_service
-    ports:
-      - "8002:8000"
+  user_service:
+    build: ./user_service
+    container_name: user_service
+    environment:
+      DATABASE_URL: "postgresql://postgres:postgres@db:5432/mydatabase"
     depends_on:
-      - db
-      - rabbitmq
-
-  recommendation-service:
-    build:
-      context: ./recommendation_service
+      db:
+        condition: service_healthy
     ports:
-      - "8003:8000"
-    depends_on:
-      - db
-      - rabbitmq
-      - movie-service
+      - "8000:8000"
 
 volumes:
   db_data:
+  pgadmin_data:
