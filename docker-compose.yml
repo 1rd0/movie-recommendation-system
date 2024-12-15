@@ -1,46 +1,33 @@
-version: "3.9"
+
+
+networks:
+  network:
+
 services:
-  db:
-    image: postgres:13-alpine  # Use version 13
-    container_name: user_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: mydatabase
+  postgres:
+    image: postgres:latest
+    container_name: postgres
+    restart: unless-stopped
     ports:
-      - "5432:5432"
+      - "5433:5432"
+    env_file:
+      - .env.postgres
     volumes:
-      - db_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - network
 
-  pgadmin:
-    image: dpage/pgadmin4:6.21
-    container_name: pgadmin
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
     ports:
-      - "5050:80"
-    depends_on:
-      - db
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-
-  user_service:
-    build: ./user_service
-    container_name: user_service
+      - "5672:5672"  # Проброс RabbitMQ на локальный порт 5672
+      - "15672:15672"  # Доступ к веб-интерфейсу RabbitMQ
     environment:
-      DATABASE_URL: "postgresql://postgres:postgres@db:5432/mydatabase"
-    depends_on:
-      db:
-        condition: service_healthy
-    ports:
-      - "8000:8000"
-
+      RABBITMQ_DEFAULT_USER: rmuser
+      RABBITMQ_DEFAULT_PASS: rmpassword
+    networks:
+      - network
 volumes:
-  db_data:
-  pgadmin_data:
+  postgres-data:
