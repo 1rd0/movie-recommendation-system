@@ -130,3 +130,37 @@ async def delete_history(user_id: int, movie_id: int,
     except Exception as e:
         print(f"Error deleting history: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error")
+@router.get("/users/{user_id}/history/")
+async def get_history(user_id: int, 
+                      db_pool=Depends(get_db_pool)):
+    """
+    Получить историю просмотров пользователя.
+    """
+    if not db_pool:
+        raise HTTPException(
+            status_code=500, 
+            detail="Database pool not initialized. Ensure database is running and connection settings are correct."
+        )
+    try:
+        async with db_pool.acquire() as connection:
+            # Извлекаем историю просмотров пользователя из базы данных
+            result = await connection.fetch(
+                "SELECT movie_id, rating, watched_at FROM user_history WHERE user_id = $1 ORDER BY watched_at DESC",
+                user_id
+            )
+            if not result:
+                return {"status": "success", "data": [], "message": "No history found for this user"}
+
+            # Преобразуем результат в список словарей
+            history = [
+                {
+                    "movie_id": record["movie_id"],
+                    "rating": record["rating"],
+                    "watched_at": record["watched_at"].isoformat()
+                }
+                for record in result
+            ]
+            return {"status": "success", "data": history}
+    except Exception as e:
+        print(f"Error fetching history: {e}")
+        raise HTTPException(status_code=500, detail="Internal Server Error")

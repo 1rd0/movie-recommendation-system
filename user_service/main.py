@@ -4,7 +4,6 @@ from database import init_db_and_rabbitmq, close_db_and_rabbitmq
 from users import router as users_router 
 from history import router as history_router 
 from profile import router as profile_router
-
 app = FastAPI()
 
 @app.on_event("startup")
@@ -21,4 +20,7 @@ async def shutdown():
 
 app.include_router(users_router, tags=["Users"])
 app.include_router(history_router, tags=["History"])
-app.include_router(profile_router, tags=["Profile"])
+app.include_router(profile_router, tags=["Profile"]) 
+from auth import router as auth_router
+
+app.include_router(auth_router, tags=["Auth"])
