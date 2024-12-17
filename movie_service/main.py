@@ -21,7 +21,7 @@ async def get_movie_metadata(movie_id: int, db_pool: asyncpg.Pool = Depends(get_
     """
     async with db_pool.acquire() as connection:
         query = """
-        SELECT id, type, title, director, cast_members, release_year, genres, description
+        SELECT id, type, title, director, cast_members, release_year, genres, description,textual_representation
         FROM movies
         WHERE id = $1
         """
@@ -39,5 +39,7 @@ async def get_movie_metadata(movie_id: int, db_pool: asyncpg.Pool = Depends(get_
             "cast": movie["cast_members"],
             "release_year": movie["release_year"],
             "genres": movie["genres"],
-            "description": movie["description"]
+            "description": movie["description"],
+            "textual_representation":movie['textual_representation']
+
         }

@@ -30,7 +30,6 @@ def get_embedding_from_ollama(prompt):
         response = requests.post(
             "http://localhost:11434/api/embeddings",
             json={'model': 'mxbai-embed-large', 'prompt': prompt},
-            timeout=5
         )
         response.raise_for_status()
         data = response.json()
