@@ -25,7 +25,7 @@ async def import_movies():
     # Заполняем пропуски значениями ""
     df.fillna("", inplace=True)
     
-    # Преобразуем столбец release_year в строки
+    # Преобразуем ст    лбец release_year в строки
     df['release_year'] = df['release_year'].astype(str)
     
     # Добавляем колонку textual_representation

@@ -96,6 +96,7 @@ async def get_user_profile_embedding(user_history, movie_metadata, current_date=
     return user_embedding
 
 def get_movie_metadata(entry, movie):
+    # Проверка наличия нужных полей в метаданных фильма
     cast_members = movie.get('cast', '').strip()
     if cast_members == '':
         cast_members = [] 
@@ -108,13 +109,14 @@ def get_movie_metadata(entry, movie):
     else:
         genres = genres.split(',')
 
+    # Преобразуем release_year в строку, если это число
     release_year = str(movie.get('release_year', 'N/A'))
 
-    # Check if textual_representation exists, otherwise use movie title
+    # Проверка наличия 'textual_representation' и её непустоты
     textual_representation = movie.get('textual_representation', '').strip()
     if not textual_representation:
-        print(f"Warning: No textual_representation for movie {movie.get('id')}. Using movie title as fallback.")
-        textual_representation = movie.get('title', 'No description available')
+        print(f"Warning: No textual_representation for movie {movie.get('id')}. Skipping embedding.")
+        return None
 
     return {
         "id": movie.get('id'),
@@ -125,7 +127,7 @@ def get_movie_metadata(entry, movie):
         "release_year": release_year,
         "genres": genres,
         "description": movie.get('description', 'N/A'),
-        "textual_representation": textual_representation,  # Added fallback
+        "textual_representation": textual_representation,  # добавлено
     }
 
 
