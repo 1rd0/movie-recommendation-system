@@ -7,10 +7,6 @@ import httpx
 router = APIRouter()
 
 async def validate_user(user_id: int):
-    """
-    Функция для проверки существования пользователя через API сервиса авторизации.
-    """
-     
     async with httpx.AsyncClient() as client:
         response = await client.get(f"http://localhost:8005/users/{user_id}")
         if response.status_code != 200:
