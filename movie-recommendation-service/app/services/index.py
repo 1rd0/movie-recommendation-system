@@ -5,7 +5,7 @@ from fastapi import HTTPException
 from app.config import FAISS_INDEX_PATH, DIM
 from app.services.embeddings import get_embedding_from_ollama
 from datetime import datetime
-
+from datetime import datetime, timezone
 try:
     index = faiss.read_index(FAISS_INDEX_PATH)
     print("FAISS index loaded successfully")
@@ -17,12 +17,16 @@ async def compute_user_profile_embedding(user_history, movie_metadata, current_d
     user_embedding = np.zeros(DIM, dtype="float32")
     total_weight = 0
     if current_date is None:
-        current_date = datetime.now()
+        current_date = datetime.now(timezone.utc)  # Установим current_date с временной зоной UTC
 
     for entry in user_history:
         movie_id = entry["movie_id"]
         rating = entry["rating"]
+
+        # Приведение watched_at к UTC
         watched_at = datetime.fromisoformat(entry["watched_at"])
+        if watched_at.tzinfo is None:
+            watched_at = watched_at.replace(tzinfo=timezone.utc)
 
         if movie_id not in movie_metadata:
             continue
@@ -38,6 +42,7 @@ async def compute_user_profile_embedding(user_history, movie_metadata, current_d
             print(f"Skipping movie_id {movie_id} because no embedding was found.")
             continue
 
+        # Вычисление временного веса
         time_diff = (current_date - watched_at).days
         time_weight = np.exp(-lambda_ * time_diff)
         weight = rating * time_weight
@@ -50,8 +55,8 @@ async def compute_user_profile_embedding(user_history, movie_metadata, current_d
         print("No valid embeddings were found for user profile, returning zero vector.")
 
     return user_embedding
-
 def search_similar(user_profile_embedding, k=3):
     user_profile_embedding = user_profile_embedding.reshape(1, -1)
     D, I = index.search(user_profile_embedding, k)
     return I.flatten()
+ 

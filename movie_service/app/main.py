@@ -1,24 +1,24 @@
 # app/main.py
-
 from fastapi import FastAPI
-import logging
-
+from tortoise import Tortoise
+from app.config import TORTOISE_ORM
 from app.routers import movies
-from app.services.database import init_db, close_db
+
 from app.services.rabbitmq import init_rabbitmq, close_rabbitmq
 
-app = FastAPI()
+app = FastAPI(title="Movie Service with Tortoise")
 
 @app.on_event("startup")
 async def startup():
-    logging.info("Initializing resources...")
-    await init_db(app)
+    # Инициализация Tortoise ORM
+    await Tortoise.init(config=TORTOISE_ORM)
+    await Tortoise.generate_schemas()
     await init_rabbitmq(app)
 
 @app.on_event("shutdown")
 async def shutdown():
-    logging.info("Releasing resources...")
-    await close_db(app)
+    await Tortoise.close_connections()
     await close_rabbitmq(app)
 
 app.include_router(movies.router)
+ 

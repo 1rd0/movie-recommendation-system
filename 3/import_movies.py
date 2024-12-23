@@ -2,7 +2,7 @@ import pandas as pd
 import asyncpg
 import asyncio
 
-DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/postgres"
+DATABASE_URL = "postgresql://postgres:postgres@localhost:5433/moviedatabase"
 
 # Функция для создания текстового представления
 def create_textual_representation(row):
@@ -20,7 +20,7 @@ Description: {row['description']}"""
 
 async def import_movies():
     # Загружаем CSV файл
-    df = pd.read_csv("E:/movie-recommendation-system/recommendation_service/netflix_titles.csv")
+    df = pd.read_csv("E:/movie-recommendation-system/3/netflix_titles.csv")
     
     # Заполняем пропуски значениями ""
     df.fillna("", inplace=True)
@@ -35,13 +35,13 @@ async def import_movies():
     conn = await asyncpg.connect(DATABASE_URL)
     
     # Очистим таблицу movies (опционально)
-    await conn.execute("TRUNCATE TABLE movies")
+    await conn.execute("TRUNCATE TABLE movie")
     
     # Вставляем данные в базу данных
     for _, row in df.iterrows():
         await conn.execute(
             """
-            INSERT INTO movies (type, title, director, cast_members, release_year, genres, description, textual_representation)
+            INSERT INTO movie (type, title, director, cast_members, release_year, genres, description, textual_representation)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             """,
             row['type'],

@@ -1,25 +1,14 @@
 from tortoise.models import Model
 from tortoise import fields
+from tortoise.fields import DatetimeField
+from datetime import datetime, timezone
 
-class User(Model):
-    id = fields.IntField(pk=True)
-    email = fields.CharField(max_length=255, unique=True)
-    hashed_password = fields.CharField(max_length=255)
-
-    def __str__(self):
-        return f"User {self.email}"
-
-
-class UserProfile(Model):
-    id = fields.IntField(pk=True)
-    user = fields.ForeignKeyField("models.User", related_name="profile")
-    name = fields.CharField(max_length=255)
-    preferences = fields.CharField(max_length=255, null=True)
-
+def utc_now():
+    return datetime.now(timezone.utc)
 
 class UserHistory(Model):
     id = fields.IntField(pk=True)
-    user = fields.ForeignKeyField("models.User", related_name="history")
+    user_id = fields.IntField()  # Храним ID пользователя вместо внешнего ключа
     movie_id = fields.IntField()
     rating = fields.IntField()
-    watched_at = fields.DatetimeField(auto_now_add=True)
+    watched_at = DatetimeField(default=utc_now)

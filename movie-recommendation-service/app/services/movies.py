@@ -2,6 +2,7 @@
 import aiohttp
 from app.config import MOVIE_SERVICE_URL
 from fastapi import HTTPException
+from datetime import datetime, timezone
 
 def prepare_movie_metadata(movie: dict):
     # Приведение данных из внешнего сервиса к структуре для вычисления эмбеддингов
@@ -47,10 +48,15 @@ async def get_movies_metadata(history_entries):
             async with session.get(f"{MOVIE_SERVICE_URL}/movies/{movie_id}/") as response:
                 if response.status == 200:
                     movie = await response.json()
-                    if isinstance(movie, dict):
-                        meta = prepare_movie_metadata(movie)
-                        if meta:
-                            movie_metadata[movie_id] = meta
+                    # Обработка даты релиза, если есть
+                    release_date = movie.get('release_date')
+                    if release_date:
+                        release_date = datetime.strptime(release_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                        movie['release_date'] = release_date
+                    # Подготовка метаданных
+                    meta = prepare_movie_metadata(movie)
+                    if meta:
+                        movie_metadata[movie_id] = meta
                 else:
                     print(f"Failed to fetch movie metadata for {movie_id}, status code: {response.status}")
 

@@ -14,3 +14,5 @@ async def get_user_history(user_id: int):
         raise HTTPException(status_code=500, detail="Invalid user history format")
 
     return history["data"]
+ 
+ 
