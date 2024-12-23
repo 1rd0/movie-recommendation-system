@@ -3,6 +3,7 @@
 FAISS_INDEX_PATH = "E:/movie-recommendation-system/movie-recommendation-service/recommendation_service/index.faiss"
 DIM = 1024  # Размерность векторов
 RABBITMQ_URL = "amqp://rmuser:rmpassword@localhost:5672/"
+EMEIL_SERVICE_URL="http://localhost:8000"
 USER_SERVICE_URL = "http://localhost:8001"
 MOVIE_SERVICE_URL = "http://localhost:8002"
 EMBEDDING_SERVICE_URL = "http://localhost:11434/api/embeddings"
