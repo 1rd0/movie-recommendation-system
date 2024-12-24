@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.config import init_db, close_db
 from app.rabbitmq import init_rabbitmq, close_rabbitmq
+from app.reviews import router as review_router
 
  
 from app.history import router as history_router
@@ -20,3 +21,4 @@ async def shutdown():
 
  
 app.include_router(history_router, tags=["History"])
+app.include_router(review_router, tags=["Reviews"])

@@ -3,7 +3,7 @@
 from fastapi import APIRouter, HTTPException
 from app.models import RecommendationsResponse
 from app.services.users import get_user_history
-from app.services.movies import get_movies_metadata, get_movies_by_ids
+from app.services.movies import get_movies_metadata, get_movies_by_ids,save_recommendation_to_db
 from app.services.index import compute_user_profile_embedding, search_similar
  
 from app.config import DEFAULT_NUM_RECOMMENDATIONS
@@ -35,7 +35,7 @@ async def get_recommendations(user_id: int):
         
         # Получаем рекомендации по ID фильмов
         recommendations = await get_movies_by_ids(recommended_movie_ids)
-
+        await save_recommendation_to_db(user_id, recommended_movie_ids)
         # Отправляем данные в очередь RabbitMQ
         publish_recommendations_to_queue(user_email, recommendations)
 

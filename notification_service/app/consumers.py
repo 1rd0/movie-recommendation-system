@@ -5,20 +5,18 @@ from app.emailer import send_email
 from app.config import settings
 
 async def process_recommendation_message(message: aio_pika.IncomingMessage):
-    """
-    Обрабатывает сообщения из очереди RabbitMQ с рекомендациями фильмов.
-    """
+  
     async with message.process():
         try:
-            # Парсим сообщение
+       
             data = json.loads(message.body.decode("utf-8"))
             recommendation_data = RecommendationMessage(**data)
 
-            # Формируем текст письма
+          
             recommendations_list = "\n".join([f"- {item['title']}" for item in recommendation_data.recommendations])
             email_body = f"Здравствуйте!\n\nМы рады предложить вам следующие фильмы:\n\n{recommendations_list}"
 
-            # Отправка email
+        
             await send_email(recommendation_data.email, "Ваши рекомендации по фильмам", email_body)
             print(f"Рекомендации отправлены на {recommendation_data.email}")
         except Exception as e:
@@ -31,7 +29,7 @@ async def start_consumer():
     connection = await aio_pika.connect_robust(settings.RABBITMQ_URL)
     channel = await connection.channel()
 
-    # Создаём очередь для рекомендаций
+ 
     recommendation_queue = await channel.declare_queue("recommendations", durable=False)
     await recommendation_queue.consume(process_recommendation_message)
     print("Слушатель для recommendation запущен")

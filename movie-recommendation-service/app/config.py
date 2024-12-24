@@ -11,7 +11,7 @@ DEFAULT_NUM_RECOMMENDATIONS = 3
 TORTOISE_ORM = {
     "connections": {
         
-        "default": "postgres://postgres:postgres@localhost:5433/postgres"
+        "default": "postgres://postgres:postgres@localhost:5433/recdatabase"
     },
     "apps": {
         "models": {

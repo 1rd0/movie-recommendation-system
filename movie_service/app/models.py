@@ -16,17 +16,7 @@ class Movie(models.Model):
 
     def __str__(self):
         return self.title
- 
-class Review(models.Model):
-    id = fields.IntField(pk=True)
-    movie = fields.ForeignKeyField("models.Movie", related_name="reviews")  
-    user_id = fields.IntField()  
-    rating = fields.IntField()   
-    review_text = fields.TextField(null=True)   
-    created_at = fields.DatetimeField(auto_now_add=True)   
-
-    def __str__(self):
-        return f"Review for {self.movie.title} by User {self.user_id}"
+  
 
 class MovieCreate(BaseModel):
     type: str

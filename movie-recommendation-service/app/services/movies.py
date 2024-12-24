@@ -75,3 +75,23 @@ async def get_movies_by_ids(movie_ids):
                     if meta:
                         results.append(meta)
     return results
+from app.models import RecommendationCache
+
+import numpy as np
+from app.models import RecommendationCache
+
+async def save_recommendation_to_db(user_id: int, movie_ids: np.ndarray):
+    try:
+        # Преобразование numpy.ndarray в list
+        movie_ids_list = movie_ids.tolist()
+
+        # Создание объекта
+        recommendation = RecommendationCache(
+            user_id=user_id,
+            recommended_movie_ids=movie_ids_list
+        )
+        # Сохранение объекта в базу данных
+        await recommendation.save()
+        print(f"Recommendations for user {user_id} successfully saved.")
+    except Exception as e:
+        print(f"Error saving recommendations for user {user_id}: {e}")

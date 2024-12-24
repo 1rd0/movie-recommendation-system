@@ -6,7 +6,7 @@ from jose import jwt
 from passlib.context import CryptContext
 router = APIRouter()
 
-SECRET_KEY = "your_secret_key"
+SECRET_KEY = "My-secret-key"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
