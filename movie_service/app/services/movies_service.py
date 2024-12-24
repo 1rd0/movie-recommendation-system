@@ -1,4 +1,4 @@
-# app/services/movies_service.py
+
 from fastapi import HTTPException
 from app.repositories.movies_repo import MovieRepository
 
@@ -8,6 +8,18 @@ class MovieService:
         self.repo = repo
         self.rabbitmq_connection = rabbitmq_connection
 
+    async def add_director(self, movie_id: int, director_name: str):
+        added = await self.repo.add_director_to_movie(movie_id, director_name)
+        if not added:
+            raise HTTPException(status_code=404, detail="Movie not found")
+        return {"message": f"Director {director_name} added to movie {movie_id}"}
+
+    async def get_directors(self, movie_id: int):
+        directors = await self.repo.get_directors_by_movie(movie_id)
+        if not directors:
+            raise HTTPException(status_code=404, detail="No directors found for the movie")
+        return [{"director_name": d.director_name} for d in directors]
+    
     async def get_movie(self, movie_id: int):
         movie = await self.repo.get_movie_by_id(movie_id)
         if not movie:
@@ -73,7 +85,7 @@ class MovieService:
         )
         if not updated:
             raise HTTPException(status_code=404, detail="Movie not found")
-        # Отправить событие в RabbitMQ, если нужно
+        
         return {"id": movie_id, "message": "Movie updated successfully"}
 
     async def delete_movie(self, movie_id: int):

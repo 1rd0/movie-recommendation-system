@@ -1,4 +1,4 @@
-# app/services/rabbitmq.py
+
 import aio_pika
 from fastapi import FastAPI
 from app.config import RABBITMQ_URL

@@ -1,4 +1,4 @@
-# app/models.py
+
 from typing import Optional, List
 from pydantic import BaseModel
 from tortoise import fields, models
@@ -31,7 +31,7 @@ class MovieCreate(BaseModel):
         return f"""Type: {self.type},
 Title: {self.title},
 Director: {self.director},
-Cast: {self.cast_members},  # Обновлено для соответствия
+Cast: {self.cast_members},  
 Released: {self.release_year},
 Genres: {self.genres},
 
@@ -55,3 +55,13 @@ Released: {self.release_year or ''},
 Genres: {self.genres or ''},
 
 Description: {self.description or ''}"""
+from tortoise.models import Model
+from tortoise import fields
+
+class DirectorMovies(Model):
+    id = fields.IntField(pk=True)
+    movie = fields.ForeignKeyField("models.Movie", related_name="directors", on_delete=fields.CASCADE)
+    director_name = fields.CharField(max_length=255)
+
+    def __str__(self):
+        return f"Director {self.director_name} for movie {self.movie.title}"

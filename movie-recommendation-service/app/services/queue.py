@@ -3,12 +3,7 @@ import json
 from app.config import RABBITMQ_URL
 
 def publish_recommendations_to_queue(user_email: str, recommendations: list):
-    """
-    Публикует рекомендации в очередь RabbitMQ.
     
-    :param user_email: Email пользователя.
-    :param recommendations: Список рекомендованных фильмов (title и email).
-    """
     try:
         connection = pika.BlockingConnection(pika.URLParameters(RABBITMQ_URL))
         channel = connection.channel()

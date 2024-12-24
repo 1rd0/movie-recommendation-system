@@ -25,14 +25,14 @@ from pydantic import BaseModel
 from typing import Optional
 
 class ReviewCreate(BaseModel):
-    movie_id: int  # ID фильма, к которому относится отзыв
-    user_id: int   # ID пользователя, оставившего отзыв
-    rating: int    # Рейтинг (например, от 1 до 5)
-    review_text: Optional[str] = None  # Текст отзыва, опционально
+    movie_id: int  
+    user_id: int   
+    rating: int    
+    review_text: Optional[str] = None 
 
 class ReviewUpdate(BaseModel):
-    rating: Optional[int] = None  # Изменение рейтинга
-    review_text: Optional[str] = None  # Изменение текста отзыва
+    rating: Optional[int] = None 
+    review_text: Optional[str] = None 
 
 from pydantic import BaseModel
 from typing import Optional
@@ -49,3 +49,4 @@ class ReviewResponse(BaseModel):
 
     class Config:
         from_attributes = True
+ 

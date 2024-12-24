@@ -6,7 +6,7 @@ class MovieResponse(BaseModel):
     id: int
     title: str
     release_year: str
-    reviews: List[ReviewResponse]  # Отзывы, связанные с фильмом
+    reviews: List[ReviewResponse]  
 
     class Config:
         orm_mode = True

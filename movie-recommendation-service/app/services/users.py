@@ -16,12 +16,7 @@ async def get_user_history(user_id: int):
     return history["data"]
  
 async def get_user_email(user_id: int) -> str:
-    """
-    Получает email пользователя по его ID.
     
-    :param user_id: ID пользователя.
-    :return: Email пользователя.
-    """
     async with aiohttp.ClientSession() as session:
         async with session.get(f"{EMEIL_SERVICE_URL}/users/{user_id}/") as response:
             if response.status != 200:

@@ -2,13 +2,24 @@
 from typing import Optional, List
 from tortoise.exceptions import DoesNotExist
 from app.models import Movie
-
+from app.models import DirectorMovies
 class MovieRepository:
+
+    async def add_director_to_movie(self, movie_id: int, director_name: str) -> bool:
+        movie = await self.get_movie_by_id(movie_id)
+        if not movie:
+            return False
+        await DirectorMovies.create(movie=movie, director_name=director_name)
+        return True
+
+    async def get_directors_by_movie(self, movie_id: int):
+        return await DirectorMovies.filter(movie_id=movie_id).all()
+
     async def get_movie_by_id(self, movie_id: int) -> Optional[Movie]:
         return await Movie.get_or_none(id=movie_id)
 
     async def search_movies(self, title: Optional[str], genre: Optional[str], director: Optional[str]) -> List[Movie]:
-        # Формируем фильтр динамически
+        
         query = Movie.all()
         if title:
             query = query.filter(title__icontains=title)

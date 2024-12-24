@@ -8,7 +8,6 @@ from app.services.movies_service import MovieService
 router = APIRouter(tags=["Movies"])
 
 def get_repo():
-    # Tortoise ORM не требует явного пула соединений, репозиторий может быть создан напрямую
     return MovieRepository()
 
 @router.get("/movies/{movie_id}/")
@@ -36,3 +35,12 @@ async def update_movie(movie_id: int, movie: MovieUpdate, repo=Depends(get_repo)
 async def delete_movie(movie_id: int, repo=Depends(get_repo)):
     service = MovieService(repo, None)
     return await service.delete_movie(movie_id)
+@router.post("/movies/{movie_id}/directors/")
+async def add_director(movie_id: int, director_name: str, repo=Depends(get_repo), rabbitmq=Depends(get_rabbitmq_connection)):
+    service = MovieService(repo, rabbitmq)
+    return await service.add_director(movie_id, director_name)
+
+@router.get("/movies/{movie_id}/directors/")
+async def get_directors(movie_id: int, repo=Depends(get_repo), rabbitmq=Depends(get_rabbitmq_connection)):
+    service = MovieService(repo, rabbitmq)
+    return await service.get_directors(movie_id)

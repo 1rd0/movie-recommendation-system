@@ -1,7 +1,7 @@
 # app/config.py
 
 FAISS_INDEX_PATH = "E:/movie-recommendation-system/movie-recommendation-service/recommendation_service/index.faiss"
-DIM = 1024  # Размерность векторов
+DIM = 1024  
 RABBITMQ_URL = "amqp://rmuser:rmpassword@localhost:5672/"
 EMEIL_SERVICE_URL="http://localhost:8000"
 USER_SERVICE_URL = "http://localhost:8001"

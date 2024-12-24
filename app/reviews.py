@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException, Depends
 from typing import List
-from app.schemas import ReviewCreate, ReviewUpdate, ReviewResponse
+from app.schemas import ReviewCreate, ReviewUpdate, ReviewResponse 
 from app.reviews_repo import ReviewRepository
-
+from app.models import UserActivityLog
 
 router = APIRouter()
 review_repo = ReviewRepository()
@@ -14,6 +14,12 @@ async def create_review(review: ReviewCreate):
         user_id=review.user_id,
         rating=review.rating,
         review_text=review.review_text,
+    )
+    await UserActivityLog.create(
+        user_id=review.user_id,
+        movie_id=review.movie_id,
+        action="reviewed",
+        details={"rating": review.rating, "review_text": review.review_text}
     )
     return await review_repo.get_review_by_id(review_id)
 
@@ -41,3 +47,7 @@ async def delete_review(review_id: int):
     if not deleted:
         raise HTTPException(status_code=404, detail="Review not found")
     return {"status": "success", "message": "Review deleted"}
+@router.get("/users/{user_id}/activity-log/")
+async def get_activity_log(user_id: int):
+    logs = await UserActivityLog.filter(user_id=user_id).order_by("-timestamp")
+    return {"status": "success", "data": logs}

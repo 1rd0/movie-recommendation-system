@@ -1,4 +1,4 @@
-# app/main.py
+
 from fastapi import FastAPI
 from tortoise import Tortoise
 from app.config import TORTOISE_ORM
@@ -10,7 +10,7 @@ app = FastAPI(title="Movie Service with Tortoise")
 
 @app.on_event("startup")
 async def startup():
-    # Инициализация Tortoise ORM
+    
     await Tortoise.init(config=TORTOISE_ORM)
     await Tortoise.generate_schemas()
     await init_rabbitmq(app)

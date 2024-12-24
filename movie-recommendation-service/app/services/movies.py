@@ -1,11 +1,11 @@
-# app/services/movies.py
+
 import aiohttp
 from app.config import MOVIE_SERVICE_URL
 from fastapi import HTTPException
 from datetime import datetime, timezone
 
 def prepare_movie_metadata(movie: dict):
-    # Приведение данных из внешнего сервиса к структуре для вычисления эмбеддингов
+    
     cast_members = movie.get('cast', '').strip()
     if cast_members == '':
         cast_members = []
@@ -48,12 +48,12 @@ async def get_movies_metadata(history_entries):
             async with session.get(f"{MOVIE_SERVICE_URL}/movies/{movie_id}/") as response:
                 if response.status == 200:
                     movie = await response.json()
-                    # Обработка даты релиза, если есть
+                    
                     release_date = movie.get('release_date')
                     if release_date:
                         release_date = datetime.strptime(release_date, "%Y-%m-%d").replace(tzinfo=timezone.utc)
                         movie['release_date'] = release_date
-                    # Подготовка метаданных
+                    
                     meta = prepare_movie_metadata(movie)
                     if meta:
                         movie_metadata[movie_id] = meta
@@ -82,16 +82,63 @@ from app.models import RecommendationCache
 
 async def save_recommendation_to_db(user_id: int, movie_ids: np.ndarray):
     try:
-        # Преобразование numpy.ndarray в list
+        
         movie_ids_list = movie_ids.tolist()
 
-        # Создание объекта
+        
         recommendation = RecommendationCache(
             user_id=user_id,
             recommended_movie_ids=movie_ids_list
         )
-        # Сохранение объекта в базу данных
+        
         await recommendation.save()
         print(f"Recommendations for user {user_id} successfully saved.")
     except Exception as e:
         print(f"Error saving recommendations for user {user_id}: {e}")
+from app.models import RecommendationCache, MovieRecommendationDetails
+
+async def save_recommendation_with_details(user_id: int, recommendations: list):
+    try:
+        
+        recommendation_cache = await RecommendationCache.create(
+            user_id=user_id,
+            recommended_movie_ids=[movie["id"] for movie in recommendations]
+        )
+
+        for movie in recommendations:
+            await MovieRecommendationDetails.create(
+                recommendation=recommendation_cache,
+                movie_id=movie["id"],
+                title=movie["title"],
+                genres=movie["genres"],
+                description=movie["description"],
+                director=movie["director"],
+                cast=movie["cast"],
+            )
+
+        print(f"Recommendations with details for user {user_id} successfully saved.")
+    except Exception as e:
+        print(f"Error saving recommendations with details for user {user_id}: {e}")
+from app.models import RecommendationCache, MovieRecommendationDetails
+
+async def get_recommendations_with_details(user_id: int):
+    try:
+        recommendation_cache = await RecommendationCache.get(user_id=user_id)
+        movie_details = await MovieRecommendationDetails.filter(recommendation=recommendation_cache).all()
+
+        return {
+            "user_id": user_id,
+            "recommended_movies": [
+                {
+                    "movie_id": detail.movie_id,
+                    "title": detail.title,
+                    "genres": detail.genres,
+                    "description": detail.description,
+                    "director": detail.director,
+                    "cast": detail.cast,
+                }
+                for detail in movie_details
+            ]
+        }
+    except RecommendationCache.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Recommendations not found")

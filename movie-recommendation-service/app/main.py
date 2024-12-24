@@ -7,7 +7,7 @@ app = FastAPI(title="Recommendation Service with Tortoise")
 
 @app.on_event("startup")
 async def startup():
-    # Инициализация Tortoise ORM
+    
     await Tortoise.init(config=TORTOISE_ORM)
     await Tortoise.generate_schemas()
     

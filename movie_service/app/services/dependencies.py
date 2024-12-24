@@ -1,4 +1,4 @@
-# app/services/dependencies.py
+
 from fastapi import Request
 
 def get_db_pool(request: Request):

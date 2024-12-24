@@ -18,7 +18,7 @@ async def create_user(user: UserCreate):
     try:
         new_user = await User.create(email=user.email, hashed_password=hashed_password)
     except Exception as e:
-        raise HTTPException(status_code=400, detail="User already exists")
+        raise HTTPException(status_code=400, detail="Такой пользователь уже есть")
     return new_user
 @router.delete("/{user_id}/")
 async def delete_user(user_id: int):
@@ -32,5 +32,5 @@ async def delete_user(user_id: int):
 async def get_user(user_id: int):
     user = await User.filter(id=user_id).first()
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Пользовтаель не найден")
     return user
